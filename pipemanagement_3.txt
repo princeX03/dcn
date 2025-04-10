@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+
+void childProcess() {
+    FILE *fp;
+    char read_msg[100];
+
+    fp = fopen("temp.txt", "r");
+    if (fp == NULL) {
+        printf("Child: Failed to open file.\n");
+        return;
+    }
+
+    fgets(read_msg, sizeof(read_msg), fp);
+    printf("Child received: %s\n", read_msg);
+    fclose(fp);
+}
+
+void main() {
+    FILE *fp;
+    char write_msg[] = "Hello from parent!";
+
+    clrscr();
+
+    // Simulate parent writing to a file
+    fp = fopen("temp.txt", "w");
+    if (fp == NULL) {
+        printf("Parent: Failed to open file.\n");
+        return;
+    }
+
+    fputs(write_msg, fp);
+    fclose(fp);
+
+    // Simulate child reading from the file
+    childProcess();
+
+    getch();
+}

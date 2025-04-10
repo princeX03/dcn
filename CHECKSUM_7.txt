@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <conio.h>
+
+// Function to calculate checksum
+unsigned int calculateChecksum(unsigned int data[], int n) {
+    unsigned int sum = 0;
+    int i;
+
+    // Add all data blocks
+    for (i = 0; i < n; i++) {
+        sum += data[i];
+    }
+
+    // 1's complement of sum
+    return ~sum;
+}
+
+void main() {
+    unsigned int data[] = {0x1234, 0x5678, 0x9ABC, 0xDEF0}; // 16-bit blocks
+    int n = sizeof(data) / sizeof(data[0]);
+    unsigned int checksum;
+    int i;
+
+    clrscr(); // Clear screen
+
+    checksum = calculateChecksum(data, n);
+
+    printf("Input Data Blocks:\n");
+    for (i = 0; i < n; i++) {
+        printf("0x%X\n", data[i]);
+    }
+
+    printf("Checksum: 0x%X\n", checksum);
+
+    getch(); // Wait for key press
+}

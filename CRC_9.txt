@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <string.h>
+#include <conio.h>
+
+// XOR operation
+void xorOperation(char *dividend, char *divisor, int length) {
+    int i;
+    for (i = 0; i < length; i++) {
+        dividend[i] = (dividend[i] == divisor[i]) ? '0' : '1';
+    }
+}
+
+// Calculate CRC
+void calculateCRC(char *data, char *generator, char *crc) {
+    int dataLen = strlen(data);
+    int genLen = strlen(generator);
+    char dividend[100], temp[100];
+    int i;
+
+    strcpy(dividend, data);
+    for (i = 0; i < genLen - 1; i++) {
+        dividend[dataLen + i] = '0';
+    }
+    dividend[dataLen + genLen - 1] = '\0';
+
+    strncpy(temp, dividend, genLen);
+    temp[genLen] = '\0';
+
+    for (i = 0; i < dataLen; i++) {
+        if (temp[0] == '1') {
+            xorOperation(temp, generator, genLen);
+        }
+        memmove(temp, temp + 1, genLen - 1);
+        temp[genLen - 1] = dividend[i + genLen];
+    }
+
+    strncpy(crc, temp, genLen - 1);
+    crc[genLen - 1] = '\0';
+}
+
+// CRC Validation
+int validateCRC(char *data, char *generator) {
+    int dataLen = strlen(data);
+    int genLen = strlen(generator);
+    char temp[100];
+    int i;
+
+    strncpy(temp, data, genLen);
+    temp[genLen] = '\0';
+
+    for (i = 0; i < dataLen - genLen + 1; i++) {
+        if (temp[0] == '1') {
+            xorOperation(temp, generator, genLen);
+        }
+        memmove(temp, temp + 1, genLen - 1);
+        temp[genLen - 1] = data[i + genLen];
+    }
+
+    for (i = 0; i < genLen - 1; i++) {
+        if (temp[i] != '0') {
+            return 0; // Error
+        }
+    }
+    return 1; // No error
+}
+
+void main() {
+    char data[100], generator[100], transmittedData[200], crc[100];
+    clrscr(); // Clear screen
+
+    printf("Enter the data bits: ");
+    scanf("%s", data);
+
+    printf("Enter the generator polynomial: ");
+    scanf("%s", generator);
+
+    calculateCRC(data, generator, crc);
+
+    strcpy(transmittedData, data);
+    strcat(transmittedData, crc);
+
+    printf("Transmitted Data (Data + CRC): %s\n", transmittedData);
+
+    if (validateCRC(transmittedData, generator)) {
+        printf("CRC Check Passed: No Errors Detected.\n");
+    } else {
+        printf("CRC Check Failed: Errors Detected.\n");
+    }
+
+    getch(); // Wait for key press
+}

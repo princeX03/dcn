@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <conio.h>
+#include <dos.h>
+
+#define MAX_BUCKET_SIZE 10  // Maximum number of tokens in the bucket
+#define TOKEN_RATE 1        // Tokens generated per second
+#define DATA_SIZE 1         // Fixed size per packet
+
+int bucket_tokens = 0;
+int max_bucket_size = MAX_BUCKET_SIZE;
+int token_rate = TOKEN_RATE;
+
+// Function to simulate token generation
+void generateTokens() {
+    if (bucket_tokens < max_bucket_size) {
+        bucket_tokens += token_rate;
+        if (bucket_tokens > max_bucket_size) {
+            bucket_tokens = max_bucket_size;
+        }
+        printf("Tokens generated: %d. Current tokens in the bucket: %d\n", token_rate, bucket_tokens);
+    } else {
+        printf("Bucket is full. No new tokens generated.\n");
+    }
+}
+
+// Function to simulate data transmission
+void transmitData() {
+    if (bucket_tokens >= DATA_SIZE) {
+        bucket_tokens -= DATA_SIZE;
+        printf("Data transmitted: 1 packet. Remaining tokens: %d\n", bucket_tokens);
+    } else {
+        printf("Insufficient tokens. Data transmission paused.\n");
+    }
+}
+
+void main() {
+    clrscr();
+    printf("Token Bucket Congestion Control Simulation\n");
+    printf("Max bucket size: %d tokens\n", max_bucket_size);
+    printf("Token rate: %d tokens per second\n", token_rate);
+
+    while (!kbhit()) {
+        generateTokens();
+        transmitData();
+
+        delay(1000);  // Delay for 1 second
+    }
+
+    printf("\nSimulation stopped.\n");
+    getch();
+}
+

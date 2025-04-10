@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <dos.h>
+
+#define MAX_BUCKET_SIZE 10 // Maximum bucket capacity (in packets)
+#define LEAK_RATE 1        // Leak rate (in packets per second)
+
+int bucket_size = 0;       // Current size of the bucket
+
+// Function to generate pseudo-random packet arrivals (1-3)
+int randomDataArrival() {
+    return (rand() % 3) + 1;
+}
+
+// Function to simulate incoming data
+void simulateIncomingData() {
+    int data_arrival = randomDataArrival(); // Generate between 1 to 3
+    printf("Incoming data: %d packets\n", data_arrival);
+
+    if (bucket_size + data_arrival <= MAX_BUCKET_SIZE) {
+        bucket_size += data_arrival;
+        printf("Data added to the bucket. Current bucket size: %d packets\n", bucket_size);
+    } else {
+        int overflow = (bucket_size + data_arrival) - MAX_BUCKET_SIZE;
+        bucket_size = MAX_BUCKET_SIZE;
+        printf("Bucket overflow! %d packets discarded.\n", overflow);
+        printf("Current bucket size: %d packets\n", bucket_size);
+    }
+}
+
+// Function to simulate leak process
+void leakData() {
+    if (bucket_size > 0) {
+        bucket_size -= LEAK_RATE;
+        if (bucket_size < 0)
+            bucket_size = 0;
+        printf("Data leaked at rate %d. Current bucket size: %d packets\n", LEAK_RATE, bucket_size);
+    }
+}
+
+void main() {
+    int i;
+    clrscr();
+
+    printf("Leaky Bucket Congestion Control Simulation\n");
+    printf("Max bucket size: %d packets\n", MAX_BUCKET_SIZE);
+    printf("Leak rate: %d packets per second\n\n", LEAK_RATE);
+
+    randomize(); // Initialize Turbo C++ random number generator
+
+    // Simulate 10 intervals (you can increase it)
+    for (i = 0; i < 10; i++) {
+        simulateIncomingData();
+        leakData();
+        delay(1000); // 1-second delay using Turbo C++ function
+        printf("\n");
+    }
+
+    getch();
+}
+

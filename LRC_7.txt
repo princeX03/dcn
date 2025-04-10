@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h>
+#include <conio.h>
+
+// Function to calculate LRC
+void calculateLRC(char data[][9], int rows, char *lrc) {
+    int col, row;
+    int colSum[8] = {0};
+
+    for (col = 0; col < 8; col++) {
+        for (row = 0; row < rows; row++) {
+            colSum[col] ^= (data[row][col] - '0'); // XOR column-wise
+        }
+        lrc[col] = colSum[col] + '0'; // Convert back to character
+    }
+    lrc[8] = '\0'; // Null-terminate
+}
+
+void main() {
+    char data[4][9] = {
+        "11001101",
+        "10101010",
+        "11110000",
+        "00001111"
+    };
+
+    char lrc[9];
+    int i;
+
+    clrscr(); // Clear screen
+
+    calculateLRC(data, 4, lrc);
+
+    printf("Input Data Blocks:\n");
+    for (i = 0; i < 4; i++) {
+        printf("%s\n", data[i]);
+    }
+
+    printf("LRC: %s\n", lrc);
+
+    getch(); // Wait for key press
+}

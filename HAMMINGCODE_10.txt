@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+#include <math.h>
+
+#define MAX 50
+
+int power(int base, int exp) {
+    int result = 1, i;
+    for (i = 0; i < exp; i++) {
+        result *= base;
+    }
+    return result;
+}
+
+// Function to calculate number of parity bits
+int calculateParityCount(int m) {
+    int r = 0;
+    while (power(2, r) < (m + r + 1)) {
+        r++;
+    }
+    return r;
+}
+
+// Function to calculate parity bits and encode
+void encodeHamming(char data[], int m, int encoded[]) {
+    int r = calculateParityCount(m);
+    int n = m + r;
+    int i, j = 0, k = 0, pos;
+
+    // Insert data bits and placeholder (-1) for parity bits
+    for (i = 1; i <= n; i++) {
+        if ((i & (i - 1)) == 0) {
+            encoded[i] = -1; // Parity placeholder
+        } else {
+            encoded[i] = data[j++] - '0';
+        }
+    }
+
+    // Calculate parity bits
+    for (i = 0; i < r; i++) {
+        pos = power(2, i);
+        int parity = 0;
+        for (j = 1; j <= n; j++) {
+            if ((j & pos) == pos && j != pos) {
+                parity ^= encoded[j];
+            }
+        }
+        encoded[pos] = parity;
+    }
+
+    // Display encoded data
+    printf("Encoded data with parity bits: ");
+    for (i = 1; i <= n; i++) {
+        printf("%d", encoded[i]);
+    }
+    printf("\n");
+}
+
+// Function to detect and correct error
+void decodeHamming(int encoded[], int m) {
+    int r = calculateParityCount(m);
+    int n = m + r;
+    int i, j, pos, errorPos = 0;
+
+    // Check parity bits
+    for (i = 0; i < r; i++) {
+        pos = power(2, i);
+        int parity = 0;
+        for (j = 1; j <= n; j++) {
+            if ((j & pos) == pos) {
+                parity ^= encoded[j];
+            }
+        }
+        if (parity != 0) {
+            errorPos += pos;
+        }
+    }
+
+    // Correct error if found
+    if (errorPos != 0) {
+        printf("Error detected at position: %d\n", errorPos);
+        encoded[errorPos] = (encoded[errorPos] == 0) ? 1 : 0;
+
+        printf("Corrected data: ");
+        for (i = 1; i <= n; i++) {
+            printf("%d", encoded[i]);
+        }
+        printf("\n");
+    } else {
+        printf("No errors detected.\n");
+    }
+
+    // Extract original data
+    printf("Decoded original data: ");
+    for (i = 1; i <= n; i++) {
+        if ((i & (i - 1)) != 0) {
+            printf("%d", encoded[i]);
+        }
+    }
+    printf("\n");
+}
+
+void main() {
+    char data[MAX];
+    int m, encoded[MAX];
+    int i;
+
+    clrscr();
+
+    printf("Enter binary data: ");
+    scanf("%s", data);
+
+    m = strlen(data);
+
+    for (i = 0; i < MAX; i++) {
+        encoded[i] = 0;
+    }
+
+    encodeHamming(data, m, encoded);
+
+    // Simulate error (optional): Uncomment to test
+    // encoded[3] = (encoded[3] == 0) ? 1 : 0;
+
+    decodeHamming(encoded, m);
+
+    getch();
+}
